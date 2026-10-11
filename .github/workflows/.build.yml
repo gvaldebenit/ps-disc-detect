@@ -1,0 +1,47 @@
+
+name: Build PS Disc Detect
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/build.yml"
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bash clang-18 lld-18 wget unzip cmake python3 build-essential
+
+      - name: Install PS4 SDK
+        run: |
+          wget -O /tmp/ps4-sdk.zip https://github.com/ps4-payload-dev/sdk/releases/latest/download/ps4-payload-sdk.zip
+          sudo unzip -o /tmp/ps4-sdk.zip -d /opt
+
+      - name: Install PS5 SDK
+        run: |
+          wget -O /tmp/ps5-sdk.zip https://github.com/ps5-payload-dev/sdk/releases/latest/download/ps5-payload-sdk.zip
+          sudo unzip -o /tmp/ps5-sdk.zip -d /opt
+
+      - name: Check SDKs
+        run: |
+          test -x /opt/ps4-payload-sdk/bin/orbis-cmake
+          test -x /opt/ps5-payload-sdk/bin/prospero-cmake
+
+      - name: Build
+        run: |
+          chmod +x build.sh
+          ./build.sh Release
+
+      - name: Upload PS5 ELF
+        uses: actions/upload-artifact@v4
+        with:
+          name: disc-ps5
+          path: build/bin/disc-ps5.elf
+          if-no-files-found: error
