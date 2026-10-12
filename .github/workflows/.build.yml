@@ -39,9 +39,9 @@ jobs:
           chmod +x build.sh
           ./build.sh Release
 
-      - name: Upload PS5 ELF
+      - name: Upload PS4 ELF
         uses: actions/upload-artifact@v4
         with:
-          name: disc-ps5
-          path: build/bin/disc-ps5.elf
+          name: disc-ps4
+          path: build/bin/disc-ps4.elf
           if-no-files-found: error
